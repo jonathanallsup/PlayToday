@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- PlayToday Version 1.02 12/17/25 
-     - Replaced RW/FF with Previous/Next Song, added ver/cw, fixed video in close screen bug-->
+     - Replaced RW/FF with Previous/Next Song, added ver/cw-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -360,22 +360,13 @@
             let file = playlist[index];
             let url = URL.createObjectURL(file);
             let type = file.type;
-           
-            // Revoke BOTH old sources to prevent overlap/leaks
-            if (audioPlayer.src) {
-                URL.revokeObjectURL(audioPlayer.src);
-                audioPlayer.src = '';
-                audioPlayer.pause();
-            }
-            if (videoPlayer.src) {
-                URL.revokeObjectURL(videoPlayer.src);
-                videoPlayer.src = '';
-                videoPlayer.pause();
-            }
-           
+            
+            if (audioPlayer.src) URL.revokeObjectURL(audioPlayer.src);
+            if (videoPlayer.src) URL.revokeObjectURL(videoPlayer.src);
+            
             audioPlayer.classList.remove('active');
             videoPlayer.classList.remove('active');
-           
+            
             if (type.startsWith('video/')) {
                 currentPlayer = videoPlayer;
                 videoPlayer.src = url;
@@ -384,9 +375,8 @@
                 currentPlayer = audioPlayer;
                 audioPlayer.src = url;
                 audioPlayer.classList.add('active');
-                audioPlayer.play();
             }
-           
+            
             updatePlaylistHighlight();
             currentPlayer.load();
             playPauseBtn.textContent = 'Play';
@@ -498,3 +488,4 @@
 </body>
 
 </html>
+
