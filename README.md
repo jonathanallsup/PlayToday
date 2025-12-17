@@ -53,7 +53,7 @@ Just pure, local playback.
 |-------------------|---------|--------------------------------------|
 | December 17, 2025 | 1.00    | Initial public release<br>• Full local playback<br>• Drag/drop folders<br>• Dark mode<br>• iOS home screen support |
 | December 17, 2025 | 1.01    | Added<br>• lock screen persistence (IOS: If you already have an icon, delete it and repeat DL instructions)           |
-| December 17, 2025 | 1.02    | Added to lock screen<br>• lPrevious Song / Next Song
+| December 17, 2025 | 1.02    | Added to lock screen<br>• Previous Song / Next Song<br>• Copyright information
 | [Future date]     | 1.03    | [Upcoming features/fixes]            |
 
 The latest version is always live at https://jonathanallsup.github.io/PlayToday/
