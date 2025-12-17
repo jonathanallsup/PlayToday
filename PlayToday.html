@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>PlayToday Local Media Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #222;
+            color: #ddd;
+        }
+        #container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: background 0.3s;
+        }
+        body.dark-mode #container {
+            background: #333;
+        }
+        #playlist {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            transition: border-color 0.3s;
+        }
+        body.dark-mode #playlist {
+            border-color: #555;
+        }
+        #playlist li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        body.dark-mode #playlist li {
+            border-bottom-color: #444;
+        }
+        #playlist li:hover {
+            background: #f0f0f0;
+        }
+        body.dark-mode #playlist li:hover {
+            background: #444;
+        }
+        #playlist li.active {
+            background: #d0eaff;
+            font-weight: bold;
+        }
+        body.dark-mode #playlist li.active {
+            background: #0056b3;
+        }
+        #media-element {
+            width: 100%;
+            max-height: 400px;
+            background: black;
+            margin-bottom: 20px;
+        }
+        #audio-player, #video-player {
+            width: 100%;
+            display: none;
+        }
+        #audio-player.active, #video-player.active {
+            display: block;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        body.dark-mode button {
+            background: #0056b3;
+        }
+        body.dark-mode button:hover {
+            background: #003d80;
+        }
+        .option-btn {
+            padding: 8px 16px;
+            background: #eee;
+            color: #333;
+        }
+        body.dark-mode .option-btn {
+            background: #444;
+            color: #ddd;
+        }
+        .option-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        body.dark-mode .option-btn.active {
+            background: #0056b3;
+        }
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+            font-size: 1.2em;
+        }
+        body.dark-mode .drop-zone {
+            border-color: #555;
+        }
+        .drop-zone.dragover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        body.dark-mode .drop-zone.dragover {
+            background: #444;
+        }
+	h1 {
+    	text-align: center;
+    	margin: 10px 0 5px 0;  /* Optional but cleans up the spacing a little */
+	}
+        .note {
+            font-style: italic;
+            color: #666;
+            margin: 10px 0;
+            text-align: center;
+        }
+        body.dark-mode .note {
+            color: #aaa;
+        }
+        /* Blue browse button */
+        #file-input {
+            display: none;
+        }
+        #browse-btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        #browse-btn:hover {
+            background: #0056b3;
+        }
+        body.dark-mode #browse-btn {
+            background: #0056b3;
+        }
+        body.dark-mode #browse-btn:hover {
+            background: #003d80;
+        }
+        /* Centered time + metadata */
+        #time-display {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        #metadata {
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle">Toggle Dark Mode</button>
+    <div id="container">
+        <h1>PlayToday Media Player</h1>
+        <p class="note">Local & Secure</p>
+        
+        <label id="browse-btn" for="file-input">Browse Files</label>
+        <!-- Original line (12/17/25 9:59am commented out so we keep it for reference):
+		<input type="file" id="file-input" multiple accept="audio/*,video/*">
+		-->
+		<!-- 12/17/25 9:59am Fixed version for iOS MP3 support: -->
+		<input type="file" id="file-input" multiple accept="audio/mpeg,audio/mp3,audio/wav,audio/aac,audio/ogg,.mp3,.m4a,.wav,.aac,.ogg,video/*">
+        
+        <div id="drop-zone" class="drop-zone">Drag files or folder here</div>
+        
+        <input type="text" id="search-input" placeholder="Search playlist...">
+        
+        <ul id="playlist"></ul>
+        
+        <div id="media-element">
+            <audio id="audio-player" controls class="active"></audio>
+            <video id="video-player" controls></video>
+        </div>
+        
+        <div id="controls">
+            <button id="prev-btn">Previous</button>
+            <button id="play-pause-btn">Play</button>
+            <button id="next-btn">Next</button>
+            <button id="shuffle-btn" class="option-btn">Shuffle</button>
+            <button id="repeat-btn" class="option-btn">Repeat One</button>
+        </div>
+        
+        <div id="time-display">00:00 / 00:00</div>
+        <div id="metadata"></div>
+    </div>
+
+    <script>
+        let playlist = [];
+        let currentIndex = 0;
+        let shuffleMode = false;
+        let repeatOneMode = false;
+        let audioPlayer = document.getElementById('audio-player');
+        let videoPlayer = document.getElementById('video-player');
+        let currentPlayer = audioPlayer;
+        let playPauseBtn = document.getElementById('play-pause-btn');
+        let prevBtn = document.getElementById('prev-btn');
+        let nextBtn = document.getElementById('next-btn');
+        let shuffleBtn = document.getElementById('shuffle-btn');
+        let repeatBtn = document.getElementById('repeat-btn');
+        let timeDisplay = document.getElementById('time-display');
+        let playlistUl = document.getElementById('playlist');
+        let fileInput = document.getElementById('file-input');
+        let searchInput = document.getElementById('search-input');
+        let dropZone = document.getElementById('drop-zone');
+        let metadataDiv = document.getElementById('metadata');
+        let themeToggle = document.getElementById('theme-toggle');
+        
+        function formatTime(seconds) {
+            if (isNaN(seconds)) seconds = 0;
+            let mins = Math.floor(seconds / 60);
+            let secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function updateTime() {
+            if (!currentPlayer) return;
+            timeDisplay.textContent = `${formatTime(currentPlayer.currentTime)} / ${formatTime(currentPlayer.duration)}`;
+        }
+        
+        async function traverseFileTree(entry) {
+            if (entry.isFile) {
+                return new Promise(resolve => entry.file(file => resolve([file])));
+            } else if (entry.isDirectory) {
+                let dirReader = entry.createReader();
+                return new Promise(resolve => {
+                    dirReader.readEntries(async entries => {
+                        let promises = entries.map(traverseFileTree);
+                        let results = await Promise.all(promises);
+                        resolve(results.flat());
+                    });
+                });
+            }
+            return [];
+        }
+        
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', async e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            let files = [];
+            if (e.dataTransfer.items) {
+                let promises = [];
+                for (let item of e.dataTransfer.items) {
+                    let entry = item.webkitGetAsEntry();
+                    if (entry) promises.push(traverseFileTree(entry));
+                    else if (item.kind === 'file') files.push(item.getAsFile());
+                }
+                if (promises.length) {
+                    let results = await Promise.all(promises);
+                    files = files.concat(results.flat());
+                }
+            } else {
+                files = Array.from(e.dataTransfer.files);
+            }
+            addMediaFiles(files.filter(f => f.type.startsWith('audio/') || f.type.startsWith('video/')));
+        });
+        
+        fileInput.addEventListener('change', () => {
+            addMediaFiles(Array.from(fileInput.files));
+        });
+        
+        function addMediaFiles(files) {
+            playlist = playlist.concat(files);
+            updatePlaylist();
+            if (playlist.length > 0 && !currentPlayer.src) loadMedia(0);
+        }
+        
+        function loadMedia(index) {
+            if (index < 0 || index >= playlist.length) return;
+            currentIndex = index;
+            let file = playlist[index];
+            let url = URL.createObjectURL(file);
+            let type = file.type;
+            
+            if (audioPlayer.src) URL.revokeObjectURL(audioPlayer.src);
+            if (videoPlayer.src) URL.revokeObjectURL(videoPlayer.src);
+            
+            audioPlayer.classList.remove('active');
+            videoPlayer.classList.remove('active');
+            
+            if (type.startsWith('video/')) {
+                currentPlayer = videoPlayer;
+                videoPlayer.src = url;
+                videoPlayer.classList.add('active');
+            } else {
+                currentPlayer = audioPlayer;
+                audioPlayer.src = url;
+                audioPlayer.classList.add('active');
+            }
+            
+            updatePlaylistHighlight();
+            currentPlayer.load();
+            playPauseBtn.textContent = 'Play';
+            metadataDiv.textContent = `Playing: ${file.name} - ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            updateTime();
+        }
+        
+        function updatePlaylist() {
+            playlistUl.innerHTML = '';
+            playlist.forEach((file, idx) => {
+                let li = document.createElement('li');
+                li.textContent = file.name;
+                li.dataset.index = idx;
+                li.addEventListener('click', () => loadMedia(idx));
+                playlistUl.appendChild(li);
+            });
+            updatePlaylistHighlight();
+        }
+        
+        function updatePlaylistHighlight() {
+            Array.from(playlistUl.children).forEach(li => li.classList.remove('active'));
+            if (playlistUl.children[currentIndex]) playlistUl.children[currentIndex].classList.add('active');
+        }
+        
+        function togglePlayPause() {
+            if (!currentPlayer) return;
+            if (currentPlayer.paused) {
+                currentPlayer.play();
+                playPauseBtn.textContent = 'Pause';
+            } else {
+                currentPlayer.pause();
+                playPauseBtn.textContent = 'Play';
+            }
+        }
+        
+        function playNext() {
+            let nextIdx = shuffleMode ? Math.floor(Math.random() * playlist.length) : (currentIndex + 1) % playlist.length;
+            loadMedia(nextIdx);
+            currentPlayer.play();
+        }
+        
+        function onTrackEnded() {
+            if (repeatOneMode) {
+                currentPlayer.currentTime = 0;
+                currentPlayer.play();
+            } else {
+                playNext();
+            }
+        }
+        
+        function prevTrack() {
+            let prevIdx = shuffleMode ? Math.floor(Math.random() * playlist.length) : (currentIndex - 1 + playlist.length) % playlist.length;
+            loadMedia(prevIdx);
+            currentPlayer.play();
+        }
+        
+        shuffleBtn.addEventListener('click', () => {
+            shuffleMode = !shuffleMode;
+            shuffleBtn.classList.toggle('active');
+        });
+        
+        repeatBtn.addEventListener('click', () => {
+            repeatOneMode = !repeatOneMode;
+            repeatBtn.classList.toggle('active');
+        });
+        
+        audioPlayer.addEventListener('timeupdate', updateTime);
+        videoPlayer.addEventListener('timeupdate', updateTime);
+        audioPlayer.addEventListener('ended', onTrackEnded);
+        videoPlayer.addEventListener('ended', onTrackEnded);
+        
+        searchInput.addEventListener('input', () => {
+            let query = searchInput.value.toLowerCase();
+            Array.from(playlistUl.children).forEach(li => {
+                li.style.display = li.textContent.toLowerCase().includes(query) ? 'block' : 'none';
+            });
+        });
+        
+        document.addEventListener('keydown', e => {
+            if (e.key === ' ') { e.preventDefault(); togglePlayPause(); }
+            if (e.key === 'ArrowRight') playNext();
+            if (e.key === 'ArrowLeft') prevTrack();
+            if (e.key === 'f' && currentPlayer === videoPlayer) videoPlayer.requestFullscreen();
+        });
+        
+        themeToggle.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+        
+        // Drag-to-reorder
+        let dragSrc = null;
+        playlistUl.addEventListener('dragstart', e => { dragSrc = e.target; e.dataTransfer.effectAllowed = 'move'; });
+        playlistUl.addEventListener('dragover', e => e.preventDefault());
+        playlistUl.addEventListener('drop', e => {
+            e.preventDefault();
+            if (e.target.tagName === 'LI' && e.target !== dragSrc) {
+                let srcIdx = parseInt(dragSrc.dataset.index);
+                let tgtIdx = parseInt(e.target.dataset.index);
+                [playlist[srcIdx], playlist[tgtIdx]] = [playlist[tgtIdx], playlist[srcIdx]];
+                updatePlaylist();
+                if (currentIndex === srcIdx) currentIndex = tgtIdx;
+                else if (currentIndex === tgtIdx) currentIndex = srcIdx;
+            }
+        });
+        
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        nextBtn.addEventListener('click', playNext);
+        prevBtn.addEventListener('click', prevTrack);
+    </script>
+</body>
+
+</html>
+
