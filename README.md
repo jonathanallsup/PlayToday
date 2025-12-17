@@ -1,0 +1,3 @@
+The point of this project is to have the ability to play local files on mobile devices and any other devices with media files.  This overcomes the issue of for example ios playing mp3's in "drive" windows and having no functionality, forcing the user to constanly choose another song one at a time upon song end.  This file is self contained, uses no external sources, and forgets what it did once reloaded or closed out of.  Completely Secure & Local.  
+
+Once this is working on all platforms, I already have ux/ui updates in the next version waiting to be released.  The biggest hurdle is ios, which is currently in testing.
