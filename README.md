@@ -39,7 +39,7 @@ Just a single HTML file that runs in your browser. Play music, videos, drag/drop
 ### Direct Download Option (for maximum privacy/offline use)
 Want the single file with no hosting?
 - Download the raw HTML file directly from GitHub:  
-  https://raw.githubusercontent.com/jonathanallsup/PlayToday/main/index.html
+  (https://raw.githubusercontent.com/jonathanallsup/PlayToday/main/PlayToday.html)
 - Save it anywhere on your device.
 - Open it in any browser (double-click on computer, or in Files app → Share → browser on mobile).
 - Works 100% offline forever—no internet ever needed.
