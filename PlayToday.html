@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<!-- PlayToday Version 1.00 12/17/25 -->
+<!-- PlayToday Version 1.01 12/17/25 
+     - Added phone closure persistence-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -319,6 +320,30 @@
             if (playlist.length > 0 && !currentPlayer.src) loadMedia(0);
         }
         
+        // Enable background playback and lock screen controls 12/17/25
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.setActionHandler('play', () => {
+            if (currentPlayer.paused) togglePlayPause();
+          });
+          navigator.mediaSession.setActionHandler('pause', () => {
+            if (!currentPlayer.paused) togglePlayPause();
+          });
+          navigator.mediaSession.setActionHandler('nexttrack', playNext);
+          navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
+        }
+
+        // Helper to update lock screen metadata 12/17/25
+        function updateMediaMetadata(file) {
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: file.name.replace(/\.[^/.]+$/, ""),  // Strips extension for clean title
+              artist: 'Local File',
+              album: 'PlayToday',
+              artwork: []
+            });
+          }
+        }
+
         function loadMedia(index) {
             if (index < 0 || index >= playlist.length) return;
             currentIndex = index;
@@ -346,6 +371,7 @@
             currentPlayer.load();
             playPauseBtn.textContent = 'Play';
             metadataDiv.textContent = `Playing: ${file.name} - ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            updateMediaMetadata(file);
             updateTime();
         }
         
