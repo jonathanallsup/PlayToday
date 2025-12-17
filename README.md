@@ -54,6 +54,6 @@ Just pure, local playback.
 | December 17, 2025 | 1.00    | Initial public release<br>• Full local playback<br>• Drag/drop folders<br>• Dark mode<br>• iOS home screen support |
 | December 17, 2025 | 1.01    | Added<br>• lock screen persistence (IOS: If you already have an icon, delete it and repeat DL instructions)           |
 | December 17, 2025 | 1.02    | Added to lock screen<br>• Previous Song / Next Song<br>• Copyright information
-| [Future date]     | 1.03    | [Upcoming features/fixes]            |
+| [Future date]     | 1.03    | [Upcoming features/fixes]<br> Bugs to Fix<br>• Video/Audio can play at once<br>• Video hides buttons<br>  Features<br>• Clicking a playlist item will start that item immediately and stop other item from playing<br>• Cause buttons to stay in bar in bottom so they never leave user view<br>• Add single click color chooser             |
 
 The latest version is always live at https://jonathanallsup.github.io/PlayToday/
