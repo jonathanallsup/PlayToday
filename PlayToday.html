@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- PlayToday Version 1.01 12/17/25 
-     - Added phone closure persistence-->
+<!-- PlayToday Version 1.02 12/17/25 
+     - Replaced RW/FF with Previous/Next Song-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -320,7 +320,7 @@
             if (playlist.length > 0 && !currentPlayer.src) loadMedia(0);
         }
         
-        // Enable background playback and lock screen controls 12/17/25
+        // Enable background playback and lock screen controls (force prev/next track buttons, no seek)
         if ('mediaSession' in navigator) {
           navigator.mediaSession.setActionHandler('play', () => {
             if (currentPlayer.paused) togglePlayPause();
@@ -328,8 +328,12 @@
           navigator.mediaSession.setActionHandler('pause', () => {
             if (!currentPlayer.paused) togglePlayPause();
           });
-          navigator.mediaSession.setActionHandler('nexttrack', playNext);
           navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
+          navigator.mediaSession.setActionHandler('nexttrack', playNext);
+
+          // Disable seek buttons completely
+          navigator.mediaSession.setActionHandler('seekbackward', null);
+          navigator.mediaSession.setActionHandler('seekforward', null);
         }
 
         // Helper to update lock screen metadata 12/17/25
