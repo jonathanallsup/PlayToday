@@ -205,7 +205,11 @@
         <p class="note">Local & Secure</p>
         
         <label id="browse-btn" for="file-input">Browse Files</label>
-        <input type="file" id="file-input" multiple accept="audio/*,video/*">
+        <!-- Original line (12/17/25 9:59am commented out so we keep it for reference):
+		<input type="file" id="file-input" multiple accept="audio/*,video/*">
+		-->
+		<!-- 12/17/25 9:59am Fixed version for iOS MP3 support: -->
+		<input type="file" id="file-input" multiple accept="audio/mpeg,audio/mp3,audio/wav,audio/aac,audio/ogg,.mp3,.m4a,.wav,.aac,.ogg,video/*">
         
         <div id="drop-zone" class="drop-zone">Drag files or folder here</div>
         
@@ -443,4 +447,5 @@
         prevBtn.addEventListener('click', prevTrack);
     </script>
 </body>
+
 </html>
