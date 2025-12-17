@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Self-Contained Local Media Player</title>
+    <link rel="manifest" href="data:application/manifest+json,{
+      %22name%22:%22PlayToday%20Media%20Player%22,
+      %22short_name%22:%22PlayToday%22,
+      %22start_url%22:%22.%22,
+      %22display%22:%22standalone%22,
+      %22background_color%22:%22#f4f4f4%22,
+      %22theme_color%22:%22#007bff%22,
+      %22icons%22:[]
+    }">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -445,6 +456,40 @@
         playPauseBtn.addEventListener('click', togglePlayPause);
         nextBtn.addEventListener('click', playNext);
         prevBtn.addEventListener('click', prevTrack);
+    </script>
+    <script>
+    // Inline service worker using blob/data URI (keeps everything in one file)
+    const swCode = `
+    self.addEventListener('install', e => {
+      e.waitUntil(
+        caches.open('playtoday-v1').then(cache => {
+          return cache.addAll([
+            './',
+            location.href.split('/').pop()  // Caches the current HTML file itself
+          ]);
+        })
+      );
+    });
+
+    self.addEventListener('fetch', e => {
+      e.respondWith(
+        caches.match(e.request).then(response => {
+          return response || fetch(e.request);
+        })
+      );
+    });
+    `;
+
+    // Register the inline service worker
+    if ('serviceWorker' in navigator) {
+      const blob = new Blob([swCode], {type: 'application/javascript'});
+      const swURL = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swURL).then(reg => {
+        console.log('Service Worker registered (inlined)');
+      }).catch(err => {
+        console.log('Service Worker failed: ', err);
+      });
+    }
     </script>
 </body>
 
