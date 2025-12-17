@@ -46,3 +46,14 @@ Want the single file with no hosting?
 
 Enjoy total control over your media—no App Store, no Google Play, no accounts.
 Just pure, local playback.
+
+### Version History
+
+| Date              | Version | Changes                              |
+|-------------------|---------|--------------------------------------|
+| December 17, 2025 | 1.00    | Initial public release<br>• Full local playback<br>• Drag/drop folders<br>• Dark mode<br>• iOS home screen support |
+| December 17, 2025 | 1.01    | Added lock screen persistence (IOS: If you already have an icon, delete it and repeat DL instructions            |
+| December 17, 2025 | 1.02    | Added Previous Song / Next Song, in lock screen
+| [Future date]     | 1.03    | [Upcoming features/fixes]            |
+
+The latest version is always live at https://jonathanallsup.github.io/PlayToday/
